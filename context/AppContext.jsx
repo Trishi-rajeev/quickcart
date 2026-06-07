@@ -40,7 +40,9 @@ export const AppContextProvider = (props) => {
     }
 
     const addToCart = (itemId) => {
-        console.log("addToCart called", itemId);
+
+        console.log("Item ID:", itemId);
+        console.log("Current Cart:", cartItems);
 
         let cartData = { ...cartItems };
 
@@ -50,7 +52,7 @@ export const AppContextProvider = (props) => {
             cartData[itemId] = 1;
         }
 
-        console.log(cartData);
+        console.log("Updated Cart:", cartData);
 
         setCartItems(cartData);
     }

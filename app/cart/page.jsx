@@ -102,7 +102,10 @@ const Cart = () => {
               </tbody>
             </table>
           </div>
-          <button onClick={()=> router.push('/all-products')} className="group flex items-center mt-6 gap-2 text-orange-600">
+          <button
+            onClick={() => router.push('/all-products')}
+            className="group flex items-center mt-6 gap-2 text-orange-600"
+          >
             <Image
               className="group-hover:-translate-x-1 transition"
               src={assets.arrow_right_icon_colored}
@@ -110,11 +113,24 @@ const Cart = () => {
             />
             Continue Shopping
           </button>
+
         </div>
-        <OrderSummary />
+
+        <div className="w-full md:w-96">
+          <OrderSummary />
+
+          <button
+            onClick={() => router.push('/payment')}
+            className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium"
+          >
+            Proceed To Checkout
+          </button>
+        </div>
+
       </div>
     </>
   );
 };
 
 export default Cart;
+

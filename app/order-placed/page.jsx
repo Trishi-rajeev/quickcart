@@ -1,28 +1,59 @@
-'use client'
-import { assets } from '@/assets/assets'
-import { useAppContext } from '@/context/AppContext'
-import Image from 'next/image'
-import { useEffect } from 'react'
+"use client";
 
-const OrderPlaced = () => {
+import { useEffect, useState } from "react";
 
-  const { router } = useAppContext()
+export default function OrderPlaced() {
+  const [orderId, setOrderId] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
 
   useEffect(() => {
-    setTimeout(() => {
-      router.push('/my-orders')
-    }, 5000)
-  }, [])
+    setOrderId(localStorage.getItem("orderId") || "");
+    setPaymentMethod(localStorage.getItem("paymentMethod") || "");
+  }, []);
 
   return (
-    <div className='h-screen flex flex-col justify-center items-center gap-5'>
-      <div className="flex justify-center items-center relative">
-        <Image className="absolute p-5" src={assets.checkmark} alt='' />
-        <div className="animate-spin rounded-full h-24 w-24 border-4 border-t-green-300 border-gray-200"></div>
-      </div>
-      <div className="text-center text-2xl font-semibold">Order Placed Successfully</div>
-    </div>
-  )
-}
+    <div className="min-h-[80vh] flex items-center justify-center px-6">
+      <div className="max-w-xl w-full border rounded-xl shadow-lg p-8 bg-white">
+        <h1 className="text-4xl text-green-600 font-bold">
+          Order Confirmed
+        </h1>
 
-export default OrderPlaced
+        <p className="mt-3 text-gray-500">
+          Thank you for shopping with QuickCart
+        </p>
+
+        <div className="mt-8 space-y-3">
+          <p>
+            <strong>Order ID:</strong> {orderId}
+          </p>
+
+          <p>
+            <strong>Status:</strong> Confirmed
+          </p>
+
+          <p>
+            <strong>Payment Method:</strong> {paymentMethod}
+          </p>
+
+          <p>
+            <strong>Estimated Delivery:</strong> 3-5 Days
+          </p>
+
+          <p>
+            <strong>Email:</strong> harshitrajeev118@gmail.com
+          </p>
+        </div>
+
+        <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+          <p className="text-green-700">
+            ✓ Order placed successfully
+          </p>
+
+          <p className="font-medium">
+            QuickCart Team
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
