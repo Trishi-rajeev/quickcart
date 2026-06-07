@@ -10,7 +10,7 @@ import { UserButton } from "@clerk/nextjs";
 
 const Navbar = () => {
 
-  const { isSeller, router, user } = useAppContext();
+  const { isSeller, router, user, getCartCount } = useAppContext();
   const { openSignIn } = useClerk();
 
   return (
@@ -57,6 +57,22 @@ const Navbar = () => {
                 />
               </UserButton.MenuItems>
             </UserButton>
+            <div
+              className="relative cursor-pointer"
+              onClick={() => router.push('/cart')}
+            >
+              <Image
+                src={assets.cart_icon}
+                alt="cart"
+                className="w-5"
+              />
+
+              {getCartCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] rounded-full px-1.5">
+                  {getCartCount()}
+                </span>
+              )}
+            </div>
 
 
           </>

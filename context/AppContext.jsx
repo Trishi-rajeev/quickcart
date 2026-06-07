@@ -1,4 +1,5 @@
 'use client'
+
 import { productsDummyData, userDummyData } from "@/assets/assets";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -19,7 +20,7 @@ export const AppContextProvider = (props) => {
 
     const [products, setProducts] = useState([])
     const [userData, setUserData] = useState(false)
-    const [isSeller, setIsSeller] = useState(true)
+    const [isSeller, setIsSeller] = useState(false)
     const [cartItems, setCartItems] = useState({})
 
     const fetchProductData = async () => {
@@ -27,52 +28,71 @@ export const AppContextProvider = (props) => {
     }
 
     const fetchUserData = async () => {
-        setUserData(userDummyData)
+        try {
+            if (user?.publicMetadata?.role === 'seller') {
+                setIsSeller(true)
+            }
+            setUserData(userDummyData)
+
+        } catch (error) {
+            console.log(error)
+        }
     }
 
-    const addToCart = async (itemId) => {
+    const addToCart = (itemId) => {
+        console.log("addToCart called", itemId);
 
-        let cartData = structuredClone(cartItems);
+        let cartData = { ...cartItems };
+
         if (cartData[itemId]) {
             cartData[itemId] += 1;
-        }
-        else {
+        } else {
             cartData[itemId] = 1;
         }
-        setCartItems(cartData);
 
+        console.log(cartData);
+
+        setCartItems(cartData);
     }
 
     const updateCartQuantity = async (itemId, quantity) => {
 
         let cartData = structuredClone(cartItems);
+
         if (quantity === 0) {
             delete cartData[itemId];
         } else {
             cartData[itemId] = quantity;
         }
-        setCartItems(cartData)
 
+        setCartItems(cartData)
     }
 
     const getCartCount = () => {
         let totalCount = 0;
+
         for (const items in cartItems) {
             if (cartItems[items] > 0) {
                 totalCount += cartItems[items];
             }
         }
+
         return totalCount;
     }
 
     const getCartAmount = () => {
         let totalAmount = 0;
+
         for (const items in cartItems) {
-            let itemInfo = products.find((product) => product._id === items);
-            if (cartItems[items] > 0) {
+            let itemInfo = products.find(
+                (product) => product._id === items
+            );
+
+            if (itemInfo && cartItems[items] > 0) {
                 totalAmount += itemInfo.offerPrice * cartItems[items];
             }
         }
+
         return Math.floor(totalAmount * 100) / 100;
     }
 
@@ -81,18 +101,31 @@ export const AppContextProvider = (props) => {
     }, [])
 
     useEffect(() => {
-        fetchUserData()
-    }, [])
+        if (user) {
+            fetchUserData()
+        }
+    }, [user])
+
+    useEffect(() => {
+        console.log("Cart Updated:", cartItems);
+    }, [cartItems])
 
     const value = {
         user,
-        currency, router,
-        isSeller, setIsSeller,
-        userData, fetchUserData,
-        products, fetchProductData,
-        cartItems, setCartItems,
-        addToCart, updateCartQuantity,
-        getCartCount, getCartAmount
+        currency,
+        router,
+        isSeller,
+        setIsSeller,
+        userData,
+        fetchUserData,
+        products,
+        fetchProductData,
+        cartItems,
+        setCartItems,
+        addToCart,
+        updateCartQuantity,
+        getCartCount,
+        getCartAmount
     }
 
     return (
