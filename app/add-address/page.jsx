@@ -19,6 +19,12 @@ const AddAddress = () => {
     const onSubmitHandler = async (e) => {
         e.preventDefault();
 
+        localStorage.setItem(
+            "shippingAddress",
+            JSON.stringify(address)
+        );
+
+        alert("Address Saved Successfully");
     }
 
     return (
@@ -39,7 +45,9 @@ const AddAddress = () => {
                         />
                         <input
                             className="px-2 py-2.5 focus:border-orange-500 transition border border-gray-500/30 rounded outline-none w-full text-gray-500"
-                            type="text"
+                            type="tel"
+                            required
+                            maxLength={10}
                             placeholder="Phone number"
                             onChange={(e) => setAddress({ ...address, phoneNumber: e.target.value })}
                             value={address.phoneNumber}

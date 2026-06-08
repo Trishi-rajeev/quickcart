@@ -20,7 +20,7 @@ const OrderSummary = () => {
   };
 
   const createOrder = async () => {
-
+    router.push("/payment");
   }
 
   useEffect(() => {

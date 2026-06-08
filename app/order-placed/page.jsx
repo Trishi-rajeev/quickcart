@@ -5,10 +5,12 @@ import { useEffect, useState } from "react";
 export default function OrderPlaced() {
   const [orderId, setOrderId] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
 
   useEffect(() => {
     setOrderId(localStorage.getItem("orderId") || "");
     setPaymentMethod(localStorage.getItem("paymentMethod") || "");
+    setCustomerPhone(localStorage.getItem("customerPhone") || "");
   }, []);
 
   return (
@@ -40,7 +42,7 @@ export default function OrderPlaced() {
           </p>
 
           <p>
-            <strong>Email:</strong> harshitrajeev118@gmail.com
+            <strong>Seller Email:</strong> harshitrajeev118@gmail.com
           </p>
         </div>
 
@@ -49,7 +51,15 @@ export default function OrderPlaced() {
             ✓ Order placed successfully
           </p>
 
-          <p className="font-medium">
+          <p className="text-green-700">
+            ✓ Order notification sent to seller
+          </p>
+
+          <p className="text-green-700">
+            ✓ SMS sent to {customerPhone}
+          </p>
+
+          <p className="font-medium mt-2">
             QuickCart Team
           </p>
         </div>

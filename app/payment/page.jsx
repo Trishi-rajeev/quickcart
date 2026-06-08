@@ -14,12 +14,20 @@ export default function PaymentPage() {
 
     const placeOrder = async () => {
 
+        const savedAddress = JSON.parse(
+            localStorage.getItem("shippingAddress")
+        );
+
+        const customerPhone =
+            savedAddress?.phoneNumber || "N/A";
+
         const orderId =
             "QC" +
             Math.floor(Math.random() * 1000000);
 
         localStorage.setItem("orderId", orderId);
         localStorage.setItem("paymentMethod", paymentMethod);
+        localStorage.setItem("customerPhone", customerPhone);
 
         await fetch("/api/send-order-email", {
             method: "POST",
@@ -30,6 +38,7 @@ export default function PaymentPage() {
                 orderId,
                 amount: total,
                 paymentMethod,
+                customerPhone,
                 customerEmail: "harshitrajeev118@gmail.com",
             }),
         });
@@ -109,32 +118,42 @@ export default function PaymentPage() {
                             />
                             UPI Payment
                         </label>
+                        <label className="flex items-center gap-2 mt-3">
+                            <input
+                                type="radio"
+                                checked={paymentMethod === "COD"}
+                                onChange={() => setPaymentMethod("COD")}
+                            />
+                            Cash On Delivery
+                        </label>
 
                     </div>
 
-                    <div className="mt-5 border rounded-lg p-4">
+                    {paymentMethod === "UPI" && (
+                        <div className="mt-5 border rounded-lg p-4">
 
-                        <h4 className="font-medium">
-                            Scan & Pay
-                        </h4>
+                            <h4 className="font-medium">
+                                Scan & Pay
+                            </h4>
 
-                        <Image
-                            src="/upi-qr.jpg.jpeg"
-                            alt="UPI QR"
-                            width={200}
-                            height={200}
-                            className="mt-3"
-                        />
+                            <Image
+                                src="/upi-qr.jpg.jpeg"
+                                alt="UPI QR"
+                                width={200}
+                                height={200}
+                                className="mt-3"
+                            />
 
-                        <p className="mt-3 text-sm">
-                            UPI ID: harshitrajeev@oksbi
-                        </p>
+                            <p className="mt-3 text-sm">
+                                UPI ID: harshitrajeev@oksbi
+                            </p>
 
-                        <p className="text-green-600 font-medium mt-2">
-                            Secure UPI Payment
-                        </p>
+                            <p className="text-green-600 font-medium mt-2">
+                                Secure UPI Payment
+                            </p>
 
-                    </div>
+                        </div>
+                    )}
 
                     <button
                         onClick={placeOrder}
