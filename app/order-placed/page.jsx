@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function OrderPlaced() {
+  const router = useRouter();
+
   const [orderId, setOrderId] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -63,6 +66,14 @@ export default function OrderPlaced() {
             QuickCart Team
           </p>
         </div>
+
+        {/* Return Home Button */}
+        <button
+          onClick={() => router.push("/")}
+          className="mt-6 w-full flex items-center justify-center gap-2 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition"
+        >
+          Return to Home
+        </button>
       </div>
     </div>
   );

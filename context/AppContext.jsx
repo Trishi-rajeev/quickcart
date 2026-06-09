@@ -1,6 +1,5 @@
 'use client'
 
-import { productsDummyData, userDummyData } from "@/assets/assets";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -13,36 +12,72 @@ export const useAppContext = () => {
 
 export const AppContextProvider = (props) => {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCYS
-    const router = useRouter()
+    const currency = process.env.NEXT_PUBLIC_CURRENCYS || "₹";
+    const router = useRouter();
 
-    const { user } = useUser()
+    const { user } = useUser();
 
-    const [products, setProducts] = useState([])
-    const [userData, setUserData] = useState(false)
-    const [isSeller, setIsSeller] = useState(false)
-    const [cartItems, setCartItems] = useState({})
+    const [products, setProducts] = useState([]);
+    const [userData, setUserData] = useState(false);
+    const [isSeller, setIsSeller] = useState(false);
+    const [cartItems, setCartItems] = useState({});
 
+    // Fetch Products
     const fetchProductData = async () => {
-        setProducts(productsDummyData)
-    }
-
-    const fetchUserData = async () => {
         try {
-            if (user?.publicMetadata?.role === 'seller') {
-                setIsSeller(true)
-            }
-            setUserData(userDummyData)
+            const res = await fetch('/api/products');
+            const data = await res.json();
+
+            console.log("PRODUCTS:", data);
+
+            setProducts(data);
 
         } catch (error) {
-            console.log(error)
+            console.log("PRODUCT FETCH ERROR:", error);
         }
-    }
+    };
 
+    // Sync User to MongoDB
+    const fetchUserData = async () => {
+        try {
+
+            console.log("CLERK USER:", user);
+
+            if (!user) return;
+
+            if (user?.publicMetadata?.role === "seller") {
+                setIsSeller(true);
+            }
+
+            const res = await fetch("/api/user/sync", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id: user.id,
+                    name: user.fullName || "User",
+                    email: user.primaryEmailAddress?.emailAddress || "",
+                    imageUrl: user.imageUrl || "",
+                }),
+            });
+
+            const data = await res.json();
+
+            console.log("USER SYNC RESPONSE:", data);
+
+            if (data.success) {
+                setUserData(data.user);
+                setCartItems(data.user.cartItems || {});
+            }
+
+        } catch (error) {
+            console.log("USER SYNC ERROR:", error);
+        }
+    };
+
+    // Cart Functions
     const addToCart = (itemId) => {
-
-        console.log("Item ID:", itemId);
-        console.log("Current Cart:", cartItems);
 
         let cartData = { ...cartItems };
 
@@ -52,10 +87,8 @@ export const AppContextProvider = (props) => {
             cartData[itemId] = 1;
         }
 
-        console.log("Updated Cart:", cartData);
-
         setCartItems(cartData);
-    }
+    };
 
     const updateCartQuantity = async (itemId, quantity) => {
 
@@ -67,50 +100,53 @@ export const AppContextProvider = (props) => {
             cartData[itemId] = quantity;
         }
 
-        setCartItems(cartData)
-    }
+        setCartItems(cartData);
+    };
 
     const getCartCount = () => {
         let totalCount = 0;
 
-        for (const items in cartItems) {
-            if (cartItems[items] > 0) {
-                totalCount += cartItems[items];
+        for (const item in cartItems) {
+            if (cartItems[item] > 0) {
+                totalCount += cartItems[item];
             }
         }
 
         return totalCount;
-    }
+    };
 
     const getCartAmount = () => {
         let totalAmount = 0;
 
-        for (const items in cartItems) {
-            let itemInfo = products.find(
-                (product) => product._id === items
+        for (const item in cartItems) {
+
+            const itemInfo = products.find(
+                (product) => product._id === item
             );
 
-            if (itemInfo && cartItems[items] > 0) {
-                totalAmount += itemInfo.offerPrice * cartItems[items];
+            if (itemInfo && cartItems[item] > 0) {
+                totalAmount += itemInfo.price * cartItems[item];
             }
         }
 
         return Math.floor(totalAmount * 100) / 100;
-    }
+    };
 
     useEffect(() => {
-        fetchProductData()
-    }, [])
+        fetchProductData();
+    }, []);
 
     useEffect(() => {
+        console.log("USER CHANGED:", user);
+
         if (user) {
-            fetchUserData()
+            fetchUserData();
         }
-    }, [user])
+    }, [user]);
 
     useEffect(() => {
-        console.log("Cart Updated:", cartItems);
-    }, [cartItems])
+        console.log("CART UPDATED:", cartItems);
+    }, [cartItems]);
 
     const value = {
         user,
@@ -128,11 +164,11 @@ export const AppContextProvider = (props) => {
         updateCartQuantity,
         getCartCount,
         getCartAmount
-    }
+    };
 
     return (
         <AppContext.Provider value={value}>
             {props.children}
         </AppContext.Provider>
-    )
-}
+    );
+};

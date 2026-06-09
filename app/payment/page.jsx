@@ -3,10 +3,12 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useAppContext } from "@/context/AppContext";
+import { useUser } from "@clerk/nextjs";
 
 export default function PaymentPage() {
 
     const { getCartAmount, currency, router } = useAppContext();
+    const { user } = useUser();
 
     const [paymentMethod, setPaymentMethod] = useState("UPI");
 
@@ -25,10 +27,28 @@ export default function PaymentPage() {
             "QC" +
             Math.floor(Math.random() * 1000000);
 
+        // Save Order to MongoDB
+        await fetch("/api/orders/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                userId: user?.id,
+                orderId,
+                amount: total,
+                paymentMethod,
+                customerPhone,
+                status: "Confirmed",
+            }),
+        });
+
+        // Save for OrderPlaced page
         localStorage.setItem("orderId", orderId);
         localStorage.setItem("paymentMethod", paymentMethod);
         localStorage.setItem("customerPhone", customerPhone);
 
+        // Send Email
         await fetch("/api/send-order-email", {
             method: "POST",
             headers: {
@@ -118,6 +138,7 @@ export default function PaymentPage() {
                             />
                             UPI Payment
                         </label>
+
                         <label className="flex items-center gap-2 mt-3">
                             <input
                                 type="radio"
